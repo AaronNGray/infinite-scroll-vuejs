@@ -17,42 +17,49 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import Component from 'vue-class-component'
 import axios from 'axios'
-import moment from 'moment'
-export default {
-  name: 'app',
+
+@Component({
+  props: {
+    propMessage: String
+  }
+})
+export default class App extends Vue {
   data() {
     return {
       persons: []
     }
-  },
-  methods: {
-    getInitialUsers() {
-      axios.get(`https://randomuser.me/api/?results=5`).then(response => {
-        this.persons = this.persons.concat(response.data.results)
-      })
-    },
-    scroll(person) {
-      let isLoading = false
-      window.onscroll = () => {
-        let bottomOfWindow = document.documentElement.offsetHeight - this.getScrollTop() - window.innerHeight <= ((window.innerHeight / 3) * 2)
-        if (bottomOfWindow && isLoading == false) {
-          isLoading = true
-          axios.get(`https://randomuser.me/api/?results=5`).then(response => {
-            this.persons = this.persons.concat(response.data.results)
-            console.log(response.data);
-            isLoading = false
-          })
-        }
+  }
+  getInitialUsers() {
+    axios.get(`https://randomuser.me/api/?results=5`).then(response => {
+      this.persons = this.persons.concat(response.data.results)
+    })
+  }
+  scroll(person) {
+    let isLoading = false
+    window.onscroll = () => {
+      let bottomOfWindow = document.documentElement.offsetHeight - this.getScrollTop() - window.innerHeight <= ((window.innerHeight / 3) * 2)
+      if (bottomOfWindow && isLoading == false) {
+        isLoading = true
+        axios.get(`https://randomuser.me/api/?results=5`).then(response => {
+          this.persons = this.persons.concat(response.data.results)
+          console.log(response.data);
+          isLoading = false
+        })
       }
-    },
-    getScrollTop() {
-      return window.pageYOffset || documentElement.scrollTop || body.scrollTop || 0;
+      if (isLoading)
+        console.log("revving");
     }
-  },
+  }
+  getScrollTop() {
+    return window.pageYOffset || document.documentElement.scrollTop || body.scrollTop || 0;
+  }
+
   beforeMount() {
     this.getInitialUsers()
-  },
+  }
   mounted() {
     this.scroll(this.persons)
   }
