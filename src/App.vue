@@ -7,14 +7,9 @@
       </div>
       <div class="right">
         <p>{{ person.name.first}} {{ person.name.last }}</p>
-        <ul>
-          <li>
-            <strong>Birthday:</strong> {{ formatDate(person.dob)}}
-          </li>
           <div class="text-capitalize">
             <strong>Location:</strong> {{ person.location.city}}, {{ person.location.state }}
           </div>
-        </ul>
       </div>
 
     </div>
@@ -26,43 +21,36 @@ import axios from 'axios'
 import moment from 'moment'
 export default {
   name: 'app',
-  // 创建一个存放用户数据的数组
   data() {
     return {
       persons: []
     }
   },
   methods: {
-    // axios请求接口获取数据
     getInitialUsers() {
-      for (var i = 0; i < 5; i++) {
-        axios.get(`https://randomuser.me/api/`).then(response => {
-          this.persons.push(response.data.results[0])
-        })
-      }
-    },
-    formatDate(date) {
-      if (date) {
-        return moment(String(date)).format('MM/DD/YYYY')
-      }
+      axios.get(`https://randomuser.me/api/?results=5`).then(response => {
+        this.persons = this.persons.concat(response.data.results)
+      })
     },
     scroll(person) {
       let isLoading = false
       window.onscroll = () => {
-        // 距离底部200px时加载一次
-        let bottomOfWindow = document.documentElement.offsetHeight - document.documentElement.scrollTop - window.innerHeight <= 200
+        let bottomOfWindow = document.documentElement.offsetHeight - this.getScrollTop() - window.innerHeight <= ((window.innerHeight / 3) * 2)
         if (bottomOfWindow && isLoading == false) {
           isLoading = true
-          axios.get(`https://randomuser.me/api/`).then(response => {
-            person.push(response.data.results[0])
+          axios.get(`https://randomuser.me/api/?results=5`).then(response => {
+            this.persons = this.persons.concat(response.data.results)
+            console.log(response.data);
             isLoading = false
           })
         }
       }
+    },
+    getScrollTop() {
+      return window.pageYOffset || documentElement.scrollTop || body.scrollTop || 0;
     }
   },
   beforeMount() {
-    // 在页面挂载前就发起请求
     this.getInitialUsers()
   },
   mounted() {
